@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -19,6 +21,15 @@ public class Task {
     @Column(name = "taskname",nullable = false)
     private String taskname;
 
+    @Column(name = "createdat", nullable = false)
+    private LocalDateTime createdat;
+
+    @Column(name = "updatedat", nullable = false)
+    private LocalDateTime updatedat;
+
+    @Column(name = "status", nullable = false)
+    private String status;
+
     @ManyToOne(fetch = FetchType.LAZY)
 //    @JoinColumn(name = "users_id",referencedColumnName = "id")
     @JoinColumn(name = "users_id")
@@ -31,4 +42,5 @@ public class Task {
     public Long getId() {
         return id;
     }
+
 }

@@ -1,14 +1,16 @@
 package com.taskMgnt.taskBackend.service;
 
 import com.taskMgnt.taskBackend.payload.TaskDto;
+import com.taskMgnt.taskBackend.payload.CreateTaskDto;
+import com.taskMgnt.taskBackend.payload.UpdateTaskDto;
 
 import java.util.List;
 
 public interface TaskService {
-    public TaskDto saveTask(long userid, TaskDto taskDto);
+    public TaskDto saveTask(CreateTaskDto taskDto);
+    public List<TaskDto> getAllTasks();
+    public TaskDto getTask(long taskid);
+    public void deleteTask(long taskid);
+    public TaskDto updateTask(long taskid, UpdateTaskDto taskDto);
 
-    public List<TaskDto> getAllTasks(long userid);
-
-    public TaskDto getTask(long userid, long taskid);
-    public void deleteTask(long userid, long taskid);
 }
