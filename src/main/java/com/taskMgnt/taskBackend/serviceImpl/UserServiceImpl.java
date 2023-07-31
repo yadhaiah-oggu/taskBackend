@@ -23,6 +23,7 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
     @Override
+//    Create User API
     public UserDto createUser(RegisterUserDto userDto) {
         if(userRepository.existsByEmail(userDto.getEmail())){
             throw new UserAlreadyExisted("User already Existed");
