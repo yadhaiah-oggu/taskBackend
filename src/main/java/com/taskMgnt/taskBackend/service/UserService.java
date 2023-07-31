@@ -4,4 +4,5 @@ import com.taskMgnt.taskBackend.payload.UserDto;
 
 public interface UserService {
     public UserDto createUser(UserDto userDto);
+    public String getUsernameByEmail(String email);
 }

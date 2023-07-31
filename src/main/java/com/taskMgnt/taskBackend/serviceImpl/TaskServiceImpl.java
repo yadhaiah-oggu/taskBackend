@@ -40,6 +40,7 @@ public class TaskServiceImpl implements TaskService {
         prePersistCreatedDate(task);
         prePersistUpdatedDate(task);
         prePersistStatus(task, "");
+        prePersistIsDeleted(task,false);
         task.setUsers(user);
         Task savedTask = taskRepository.save(task);
 
@@ -54,8 +55,9 @@ public class TaskServiceImpl implements TaskService {
                 () -> new UserNotFound(String.format("User Id %d not found",useremail))
         );
         List<Task> tasks = taskRepository.findAllByUsersId(user.getId());
-        return tasks.stream().map(
-                task -> modelMapper.map(task, TaskDto.class)
+        return tasks.stream()
+                .filter(t -> !t.isIsdeleted())
+                .map(task -> modelMapper.map(task, TaskDto.class)
         ).collect(Collectors.toList());
     }
 
@@ -68,6 +70,9 @@ public class TaskServiceImpl implements TaskService {
         Task task = taskRepository.findById(taskid).orElseThrow(
                 () -> new TaskNotFound(String.format("Task with Id %d not found",taskid))
         );
+        if(task.isIsdeleted()){
+            throw new TaskNotFound(String.format("Task with Id %d not found",taskid));
+        }
         if(user.getId() != task.getUsers().getId()){
             throw new APIException(String.format("Task id %d is not belongs to User Id %d",taskid,user.getId()));
         }
@@ -75,7 +80,7 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public void deleteTask(long taskid) {
+    public TaskDto deleteTask(long taskid) {
         String useremail = SecurityContextHolder.getContext().getAuthentication().getName();
         Users user = userRepository.findByEmail(useremail).orElseThrow(
                 () -> new UserNotFound(String.format("User Id %d not found",useremail))
@@ -86,7 +91,10 @@ public class TaskServiceImpl implements TaskService {
         if(user.getId() != task.getUsers().getId()){
             throw new APIException(String.format("Task id %d is not belongs to User Id %d",taskid,user.getId()));
         }
-        taskRepository.deleteById(taskid);
+        prePersistIsDeleted(task,true);
+        Task savedTask = taskRepository.save(task);
+        return modelMapper.map(savedTask, TaskDto.class);
+//        taskRepository.deleteById(taskid);
     }
 
     @Override
@@ -102,8 +110,6 @@ public class TaskServiceImpl implements TaskService {
         prePersistUpdatedDate(task);
         prePersistStatus(task,updatedTaskDto.getStatus());
         Task savedTask = taskRepository.save(task);
-
-        System.out.println();
         return modelMapper.map(savedTask, TaskDto.class);
     }
 
@@ -120,6 +126,9 @@ public class TaskServiceImpl implements TaskService {
             task.setStatus(String.valueOf(TaskStatus.InProgress));
         else
             task.setStatus(String.valueOf(TaskStatus.Open));
+    }
+    private void prePersistIsDeleted(Task task, boolean isDeleted){
+        task.setIsdeleted(isDeleted);
     }
 
 }

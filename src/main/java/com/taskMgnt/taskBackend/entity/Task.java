@@ -30,6 +30,9 @@ public class Task {
     @Column(name = "status", nullable = false)
     private String status;
 
+    @Column(name = "isdeleted")
+    private boolean isdeleted;
+
     @ManyToOne(fetch = FetchType.LAZY)
 //    @JoinColumn(name = "users_id",referencedColumnName = "id")
     @JoinColumn(name = "users_id")

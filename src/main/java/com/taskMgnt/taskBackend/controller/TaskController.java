@@ -1,6 +1,7 @@
 package com.taskMgnt.taskBackend.controller;
 
 import com.taskMgnt.taskBackend.entity.Task;
+import com.taskMgnt.taskBackend.payload.DeleteTaskDto;
 import com.taskMgnt.taskBackend.payload.TaskDto;
 import com.taskMgnt.taskBackend.payload.CreateTaskDto;
 import com.taskMgnt.taskBackend.payload.UpdateTaskDto;
@@ -11,7 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
+@CrossOrigin(origins = "http://localhost:4200/", allowedHeaders = "*")
 @RestController
 @RequestMapping("/api")
 public class TaskController {
@@ -41,11 +42,19 @@ public class TaskController {
 
     //DELETE individual task
     @DeleteMapping("/tasks/{taskid}")
-    public ResponseEntity<String> deleteTask(
+    public ResponseEntity<DeleteTaskDto> deleteTask(
             @PathVariable(name = "taskid") long taskid
     ){
-        taskService.deleteTask(taskid);
-        return new ResponseEntity<>("Task Deleted Succesfully",HttpStatus.OK);
+        DeleteTaskDto deleteTaskDto = new DeleteTaskDto();
+        try {
+            TaskDto deletedTask = taskService.deleteTask(taskid);
+            deleteTaskDto.setMessage("Deleted Successfully");
+        }
+        catch (Exception e){
+            deleteTaskDto.setMessage("Something Went wrong ...!");
+        }
+
+        return new ResponseEntity<>(deleteTaskDto,HttpStatus.OK);
     }
     @PutMapping("/tasks/{taskid}")
     public ResponseEntity<TaskDto> updateTask(

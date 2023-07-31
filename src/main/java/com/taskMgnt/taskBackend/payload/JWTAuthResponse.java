@@ -6,9 +6,11 @@ import lombok.Getter;
 public class JWTAuthResponse {
     private String token;
     private String tokenType = "Bearer";
+    private String username;
 
-    public JWTAuthResponse(String token){
+    public JWTAuthResponse(String token, String username){
         this.token = token;
+        this.username = username;
     }
 
 }

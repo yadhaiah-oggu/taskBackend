@@ -1,6 +1,7 @@
 package com.taskMgnt.taskBackend.controller;
 
 import com.taskMgnt.taskBackend.entity.Users;
+import com.taskMgnt.taskBackend.exception.UserAlreadyExisted;
 import com.taskMgnt.taskBackend.payload.JWTAuthResponse;
 import com.taskMgnt.taskBackend.payload.LoginDto;
 import com.taskMgnt.taskBackend.payload.UserDto;
@@ -13,11 +14,9 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+@CrossOrigin(origins = "http://localhost:4200/")
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -31,8 +30,19 @@ public class AuthController {
 
     //POST store User Data in DB
     @PostMapping("/register")
-    public ResponseEntity<UserDto> createUser(@RequestBody UserDto userDto) {
-        return new ResponseEntity<>(userService.createUser(userDto), HttpStatus.CREATED);
+    public ResponseEntity<Object> createUser(@RequestBody UserDto userDto) {
+        try {
+            UserDto savedUser = userService.createUser(userDto);
+            return new ResponseEntity<>(savedUser, HttpStatus.CREATED);
+        }
+        catch (UserAlreadyExisted e){
+            String alreadyExisted = "Email already Existed";
+            return new ResponseEntity<>(alreadyExisted,HttpStatus.BAD_REQUEST);
+        }
+        catch (Exception e){
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.OK);
+        }
+
     }
     @PostMapping("/login")
     public ResponseEntity<JWTAuthResponse> loginUser(@RequestBody LoginDto loginDto){
@@ -45,6 +55,6 @@ public class AuthController {
         String token = jwtTokenProvider.generateToken(authentication);
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        return ResponseEntity.ok(new JWTAuthResponse(token));
+        return ResponseEntity.ok(new JWTAuthResponse(token,userService.getUsernameByEmail(authentication.getName())));
     }
 }
