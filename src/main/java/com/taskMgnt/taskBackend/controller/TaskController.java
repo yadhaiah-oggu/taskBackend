@@ -9,6 +9,7 @@ import com.taskMgnt.taskBackend.service.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -31,6 +32,11 @@ public class TaskController {
     public ResponseEntity<List<TaskDto>> getAllTasks(
     ){
         return new ResponseEntity<>(taskService.getAllTasks(), HttpStatus.OK);
+    }
+    @GetMapping("/admin/tasks")
+    public ResponseEntity<List<TaskDto>> getAllUserTasks(
+    ){
+        return new ResponseEntity<>(taskService.getAllUsersTasks(), HttpStatus.OK);
     }
     //GET individual task
     @GetMapping("/tasks/{taskid}")

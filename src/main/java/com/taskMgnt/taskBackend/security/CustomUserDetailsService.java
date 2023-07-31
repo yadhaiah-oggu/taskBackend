@@ -26,8 +26,8 @@ public class CustomUserDetailsService implements UserDetailsService {
         Users user = userRepository.findByEmail(email).orElseThrow(
                 () -> new UserNotFound(String.format("User with Email : %s not found",email))
         );
-        Set<String> roles = new HashSet<String>();
-        roles.add("ROLE_ADMIN");
+        Set<String> roles = user.getRoles();
+
         return new User(user.getEmail(),user.getPassword(),userAuthorities(roles));
     }
     private Collection<? extends GrantedAuthority> userAuthorities(Set<String> roles){

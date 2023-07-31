@@ -4,6 +4,7 @@ import com.taskMgnt.taskBackend.entity.Users;
 import com.taskMgnt.taskBackend.exception.UserAlreadyExisted;
 import com.taskMgnt.taskBackend.payload.JWTAuthResponse;
 import com.taskMgnt.taskBackend.payload.LoginDto;
+import com.taskMgnt.taskBackend.payload.RegisterUserDto;
 import com.taskMgnt.taskBackend.payload.UserDto;
 import com.taskMgnt.taskBackend.security.JwtTokenProvider;
 import com.taskMgnt.taskBackend.service.UserService;
@@ -30,7 +31,7 @@ public class AuthController {
 
     //POST store User Data in DB
     @PostMapping("/register")
-    public ResponseEntity<Object> createUser(@RequestBody UserDto userDto) {
+    public ResponseEntity<Object> createUser(@RequestBody RegisterUserDto userDto) {
         try {
             UserDto savedUser = userService.createUser(userDto);
             return new ResponseEntity<>(savedUser, HttpStatus.CREATED);
@@ -44,6 +45,7 @@ public class AuthController {
         }
 
     }
+
     @PostMapping("/login")
     public ResponseEntity<JWTAuthResponse> loginUser(@RequestBody LoginDto loginDto){
         Authentication authentication =

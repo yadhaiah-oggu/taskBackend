@@ -113,6 +113,15 @@ public class TaskServiceImpl implements TaskService {
         return modelMapper.map(savedTask, TaskDto.class);
     }
 
+    @Override
+    public List<TaskDto> getAllUsersTasks() {
+        List<Task> tasks = taskRepository.findAll();
+        return tasks.stream()
+                .filter(t -> !t.isIsdeleted())
+                .map(task -> modelMapper.map(task, TaskDto.class)
+                ).collect(Collectors.toList());
+    }
+
     private void prePersistCreatedDate(Task task) {
         task.setCreatedat(LocalDateTime.now());
     }

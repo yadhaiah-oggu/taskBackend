@@ -6,6 +6,8 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 
 @Data
@@ -32,6 +34,9 @@ public class Users {
 
     @Column(name = "createdat", nullable = false)
     private LocalDateTime createdat;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    private Set<String> roles = new HashSet<>();
 
     public void setId(Long id) {
         this.id = id;
