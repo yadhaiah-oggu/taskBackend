@@ -34,6 +34,7 @@ public class TaskController {
         return new ResponseEntity<>(taskService.getAllTasks(), HttpStatus.OK);
     }
     @GetMapping("/admin/tasks")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<TaskDto>> getAllUserTasks(
     ){
         return new ResponseEntity<>(taskService.getAllUsersTasks(), HttpStatus.OK);

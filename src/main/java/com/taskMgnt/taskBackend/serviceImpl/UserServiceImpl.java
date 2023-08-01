@@ -38,6 +38,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public String getUsernameByEmail(String email) {
+
+        if(!userRepository.existsByEmail(email)){
+            throw new UserNotFound("User Not Found");
+        }
         Users user = userRepository.findByEmail(email).orElseThrow(
                 () -> new UserNotFound(String.format("User Id %d not found",email))
         );
