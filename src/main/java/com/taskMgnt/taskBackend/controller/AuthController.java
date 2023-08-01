@@ -57,6 +57,6 @@ public class AuthController {
         String token = jwtTokenProvider.generateToken(authentication);
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        return ResponseEntity.ok(new JWTAuthResponse(token,userService.getUsernameByEmail(authentication.getName())));
+        return ResponseEntity.ok(new JWTAuthResponse(token,userService.getUsernameByEmail(authentication.getName()), userService.getUserRoleByEmail(authentication.getName())));
     }
 }

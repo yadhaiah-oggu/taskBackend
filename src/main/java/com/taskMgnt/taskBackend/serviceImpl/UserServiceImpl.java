@@ -44,6 +44,21 @@ public class UserServiceImpl implements UserService {
         return user.getName();
     }
 
+    @Override
+    public String getUserRoleByEmail(String email) {
+        Users user = userRepository.findByEmail(email).orElseThrow(
+                () -> new UserNotFound(String.format("User Id %d not found",email))
+        );
+        Set<String> roles = user.getRoles();
+
+        if(roles.contains("ROLE_ADMIN")){
+            return "ADMIN";
+        }
+        else{
+            return "USER";
+        }
+   }
+
 
 
     private Users userDtoToEntity(UserDto userDto){
