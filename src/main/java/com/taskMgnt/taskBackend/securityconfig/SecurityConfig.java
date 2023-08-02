@@ -1,5 +1,7 @@
 package com.taskMgnt.taskBackend.securityconfig;
 
+
+import com.taskMgnt.taskBackend.exception.CustomAuthenticationEntryPoint;
 import com.taskMgnt.taskBackend.security.JwtAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -11,6 +13,7 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -30,6 +33,8 @@ public class SecurityConfig {
     @Autowired
     private JwtAuthenticationFilter jwtAuthenticationFilter;
 
+    @Autowired
+    private CustomAuthenticationEntryPoint unauthorizedHandler;
     @Bean
     public PasswordEncoder passwordEncoder(){
         return new BCryptPasswordEncoder();
@@ -40,9 +45,12 @@ public class SecurityConfig {
         http.cors();
         http
                 .csrf().disable()
+                .exceptionHandling()
+                .authenticationEntryPoint(unauthorizedHandler)
+                .and()
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .authorizeRequests()
                 .antMatchers(HttpMethod.POST,"/api/auth/**").permitAll()
-
                 .anyRequest()
                 .authenticated();
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
@@ -56,15 +64,15 @@ public class SecurityConfig {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
-    private static class CustomAuthenticationFailureHandler implements AuthenticationFailureHandler {
-
-        @Override
-        public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
-                                            AuthenticationException exception) throws IOException, ServletException {
-            response.setStatus(HttpStatus.UNAUTHORIZED.value());
-            response.getWriter().write("Authentication failed: " + exception.getMessage());
-        }
-
-
-    }
+//    private static class CustomAuthenticationFailureHandler implements AuthenticationFailureHandler {
+//
+//        @Override
+//        public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
+//                                            AuthenticationException exception) throws IOException, ServletException {
+//            response.setStatus(HttpStatus.UNAUTHORIZED.value());
+//            response.getWriter().write("Authentication failed: " + exception.getMessage());
+//        }
+//
+//
+//    }
 }

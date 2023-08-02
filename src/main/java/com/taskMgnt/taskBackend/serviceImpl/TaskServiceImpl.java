@@ -33,6 +33,7 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public TaskDto saveTask(CreateTaskDto taskDto) {
         String useremail = SecurityContextHolder.getContext().getAuthentication().getName();
+
         Users user = userRepository.findByEmail(useremail).orElseThrow(
                 () -> new UserNotFound(String.format("User Id %d not found",useremail))
         );

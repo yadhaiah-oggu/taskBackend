@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 @CrossOrigin(origins = "http://localhost:4200/", allowedHeaders = "*")
 @RestController
@@ -23,7 +24,7 @@ public class TaskController {
     //POST to save task
     @PostMapping("/tasks")
     public ResponseEntity<TaskDto> saveTask(
-            @RequestBody CreateTaskDto taskDto
+           @Valid @RequestBody CreateTaskDto taskDto
     ){
        return new ResponseEntity<>(taskService.saveTask(taskDto), HttpStatus.CREATED);
     }
