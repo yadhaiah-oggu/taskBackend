@@ -94,8 +94,10 @@ public class TaskServiceImpl implements TaskService {
         if(task.isIsdeleted()){
             throw new TaskNotFound(String.format("Task with Id %d not found",taskid));
         }
-        if(user.getId() != task.getUsers().getId()){
-            throw new APIException(String.format("Task id %d is not belongs to User Id %d",taskid,user.getId()));
+        if(!user.getRoles().contains("ROLE_ADMIN")){
+            if(user.getId() != task.getUsers().getId() ) {
+                throw new APIException(String.format("Task id %d is not belongs to User Id %d",taskid,user.getId()));
+            }
         }
         TaskDto taskDto = modelMapper.map(task, TaskDto.class);
 
