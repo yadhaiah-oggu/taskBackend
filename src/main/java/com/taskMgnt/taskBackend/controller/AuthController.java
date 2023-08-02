@@ -62,6 +62,7 @@ public class AuthController {
 
 
         try{
+            loginDto.setEmail(loginDto.getEmail().toLowerCase());
             String userName = userService.getUsernameByEmail(loginDto.getEmail());
 
             Authentication authentication =

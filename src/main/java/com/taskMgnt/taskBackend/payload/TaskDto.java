@@ -17,6 +17,7 @@ public class TaskDto {
     private LocalDateTime updatedat;
 
     private String status;
+    private String username;
 
 
 }

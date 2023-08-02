@@ -130,7 +130,7 @@ public class TaskController {
     @PutMapping("/tasks/{taskid}")
     public ResponseEntity<Object> updateTask(
             @PathVariable(name = "taskid") long taskid,
-            @RequestBody UpdateTaskDto updateTaskDto
+            @Valid @RequestBody UpdateTaskDto updateTaskDto
     ){
         try{
             return new ResponseEntity<>(taskService.updateTask(taskid,updateTaskDto),HttpStatus.OK);

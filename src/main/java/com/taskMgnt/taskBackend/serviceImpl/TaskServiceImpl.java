@@ -46,8 +46,12 @@ public class TaskServiceImpl implements TaskService {
             task.setUsers(user);
             Task savedTask = taskRepository.save(task);
 
-            System.out.println();
-            return modelMapper.map(savedTask, TaskDto.class);
+
+            TaskDto taskDtoResult = modelMapper.map(savedTask, TaskDto.class);
+
+            taskDtoResult.setUsername(savedTask.getUsers().getName());
+
+            return taskDtoResult;
         }
         catch (Exception e){
             throw new APIException("Something Went wrong with Database Connection");
@@ -64,8 +68,14 @@ public class TaskServiceImpl implements TaskService {
             List<Task> tasks = taskRepository.findAllByUsersId(user.getId());
             return tasks.stream()
                     .filter(t -> !t.isIsdeleted())
-                    .map(task -> modelMapper.map(task, TaskDto.class)
-                    ).collect(Collectors.toList());
+                    .map(task -> {
+                        TaskDto taskDto = modelMapper.map(task, TaskDto.class);
+
+                        taskDto.setUsername(task.getUsers().getName());
+
+                        return taskDto;
+                    })
+                    .collect(Collectors.toList());
         }
         catch (Exception e){
             throw new APIException("Something Went wrong with Database Connection");
@@ -87,7 +97,10 @@ public class TaskServiceImpl implements TaskService {
         if(user.getId() != task.getUsers().getId()){
             throw new APIException(String.format("Task id %d is not belongs to User Id %d",taskid,user.getId()));
         }
-        return modelMapper.map(task, TaskDto.class);
+        TaskDto taskDto = modelMapper.map(task, TaskDto.class);
+
+        taskDto.setUsername(task.getUsers().getName());
+        return taskDto;
     }
 
     @Override
@@ -107,7 +120,10 @@ public class TaskServiceImpl implements TaskService {
         }
         prePersistIsDeleted(task,true);
         Task savedTask = taskRepository.save(task);
-        return modelMapper.map(savedTask, TaskDto.class);
+        TaskDto taskDto = modelMapper.map(savedTask, TaskDto.class);
+
+        taskDto.setUsername(savedTask.getUsers().getName());
+        return taskDto;
 //        taskRepository.deleteById(taskid);
     }
 
@@ -130,17 +146,34 @@ public class TaskServiceImpl implements TaskService {
         prePersistUpdatedDate(task);
         prePersistStatus(task,updatedTaskDto.getStatus());
         Task savedTask = taskRepository.save(task);
-        return modelMapper.map(savedTask, TaskDto.class);
+
+        TaskDto taskDto = modelMapper.map(savedTask, TaskDto.class);
+
+        taskDto.setUsername(savedTask.getUsers().getName());
+        return taskDto;
     }
 
     @Override
     public List<TaskDto> getAllUsersTasks() {
         try{
             List<Task> tasks = taskRepository.findAll();
+//            return tasks.stream()
+//                    .filter(t -> !t.isIsdeleted())
+//                    .map(task ->
+//                            modelMapper.map(task, TaskDto.class)
+//                    ).collect(Collectors.toList());
+
             return tasks.stream()
                     .filter(t -> !t.isIsdeleted())
-                    .map(task -> modelMapper.map(task, TaskDto.class)
-                    ).collect(Collectors.toList());
+                    .map(task -> {
+                        TaskDto taskDto = modelMapper.map(task, TaskDto.class);
+
+                        taskDto.setUsername(task.getUsers().getName());
+
+                        return taskDto;
+                    })
+                    .collect(Collectors.toList());
+
 
         }
         catch (Exception e){

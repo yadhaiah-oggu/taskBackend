@@ -29,6 +29,9 @@ public class UserServiceImpl implements UserService {
         }
         Users users = registerUserDtoToEntity(userDto);
         users.setPassword(passwordEncoder.encode(users.getPassword()));
+        users.setEmail(userDto.getEmail().toLowerCase());
+        users.setName(userDto.getName().substring(0, 1).toUpperCase() + userDto.getName().substring(1));
+
 
 
         Users savedUser = userRepository.save(users);
