@@ -57,12 +57,6 @@ import java.util.Map;
         return new ResponseEntity<>("This method is not supported for this request. Supported methods are " + ex.getSupportedHttpMethods(), HttpStatus.METHOD_NOT_ALLOWED);
     }
 
-    @ExceptionHandler({ DataIntegrityViolationException.class, ConstraintViolationException.class })
-    public ResponseEntity<String> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
-
-        return new ResponseEntity<>("Database constraint violation: " + ex.getMessage(), HttpStatus.CONFLICT);
-    }
-
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<String> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
