@@ -32,34 +32,44 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public TaskDto saveTask(CreateTaskDto taskDto) {
-        String useremail = SecurityContextHolder.getContext().getAuthentication().getName();
+        try {
+            String useremail = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        Users user = userRepository.findByEmail(useremail).orElseThrow(
-                () -> new UserNotFound(String.format("User Id %d not found",useremail))
-        );
-        Task task = modelMapper.map(taskDto, Task.class);
-        prePersistCreatedDate(task);
-        prePersistUpdatedDate(task);
-        prePersistStatus(task, "");
-        prePersistIsDeleted(task,false);
-        task.setUsers(user);
-        Task savedTask = taskRepository.save(task);
+            Users user = userRepository.findByEmail(useremail).orElseThrow(
+                    () -> new UserNotFound(String.format("User Id %d not found", useremail))
+            );
+            Task task = modelMapper.map(taskDto, Task.class);
+            prePersistCreatedDate(task);
+            prePersistUpdatedDate(task);
+            prePersistStatus(task, "");
+            prePersistIsDeleted(task, false);
+            task.setUsers(user);
+            Task savedTask = taskRepository.save(task);
 
-        System.out.println();
-        return modelMapper.map(savedTask, TaskDto.class);
+            System.out.println();
+            return modelMapper.map(savedTask, TaskDto.class);
+        }
+        catch (Exception e){
+            throw new APIException("Something Went wrong with Database Connection");
+        }
     }
 
     @Override
     public List<TaskDto> getAllTasks() {
-        String useremail = SecurityContextHolder.getContext().getAuthentication().getName();
-        Users user = userRepository.findByEmail(useremail).orElseThrow(
-                () -> new UserNotFound(String.format("User Id %d not found",useremail))
-        );
-        List<Task> tasks = taskRepository.findAllByUsersId(user.getId());
-        return tasks.stream()
-                .filter(t -> !t.isIsdeleted())
-                .map(task -> modelMapper.map(task, TaskDto.class)
-        ).collect(Collectors.toList());
+        try{
+            String useremail = SecurityContextHolder.getContext().getAuthentication().getName();
+            Users user = userRepository.findByEmail(useremail).orElseThrow(
+                    () -> new UserNotFound(String.format("User Id %d not found",useremail))
+            );
+            List<Task> tasks = taskRepository.findAllByUsersId(user.getId());
+            return tasks.stream()
+                    .filter(t -> !t.isIsdeleted())
+                    .map(task -> modelMapper.map(task, TaskDto.class)
+                    ).collect(Collectors.toList());
+        }
+        catch (Exception e){
+            throw new APIException("Something Went wrong with Database Connection");
+        }
     }
 
     @Override
@@ -92,6 +102,9 @@ public class TaskServiceImpl implements TaskService {
         if(user.getId() != task.getUsers().getId()){
             throw new APIException(String.format("Task id %d is not belongs to User Id %d",taskid,user.getId()));
         }
+        if(task.isIsdeleted()){
+            throw  new TaskNotFound(String.format("Task with Id %d not found",taskid));
+        }
         prePersistIsDeleted(task,true);
         Task savedTask = taskRepository.save(task);
         return modelMapper.map(savedTask, TaskDto.class);
@@ -107,6 +120,12 @@ public class TaskServiceImpl implements TaskService {
         Task task = taskRepository.findById(taskid).orElseThrow(
                 () -> new TaskNotFound(String.format("Task with Id %d not found",taskid))
         );
+        if(user.getId() != task.getUsers().getId()){
+            throw new APIException(String.format("Task id %d is not belongs to User Id %d",taskid,user.getId()));
+        }
+        if(task.isIsdeleted()){
+            throw  new TaskNotFound(String.format("Task with Id %d not found",taskid));
+        }
         task.setTaskname(updatedTaskDto.getTaskname());
         prePersistUpdatedDate(task);
         prePersistStatus(task,updatedTaskDto.getStatus());
@@ -116,11 +135,17 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public List<TaskDto> getAllUsersTasks() {
-        List<Task> tasks = taskRepository.findAll();
-        return tasks.stream()
-                .filter(t -> !t.isIsdeleted())
-                .map(task -> modelMapper.map(task, TaskDto.class)
-                ).collect(Collectors.toList());
+        try{
+            List<Task> tasks = taskRepository.findAll();
+            return tasks.stream()
+                    .filter(t -> !t.isIsdeleted())
+                    .map(task -> modelMapper.map(task, TaskDto.class)
+                    ).collect(Collectors.toList());
+
+        }
+        catch (Exception e){
+            throw new APIException("Something Went wrong with Database Connection");
+        }
     }
 
     private void prePersistCreatedDate(Task task) {

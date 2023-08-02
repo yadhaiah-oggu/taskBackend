@@ -1,6 +1,9 @@
 package com.taskMgnt.taskBackend.controller;
 
 import com.taskMgnt.taskBackend.entity.Task;
+import com.taskMgnt.taskBackend.exception.APIException;
+import com.taskMgnt.taskBackend.exception.TaskNotFound;
+import com.taskMgnt.taskBackend.exception.UserNotFound;
 import com.taskMgnt.taskBackend.payload.DeleteTaskDto;
 import com.taskMgnt.taskBackend.payload.TaskDto;
 import com.taskMgnt.taskBackend.payload.CreateTaskDto;
@@ -23,52 +26,128 @@ public class TaskController {
 
     //POST to save task
     @PostMapping("/tasks")
-    public ResponseEntity<TaskDto> saveTask(
+    public ResponseEntity<Object> saveTask(
            @Valid @RequestBody CreateTaskDto taskDto
     ){
-       return new ResponseEntity<>(taskService.saveTask(taskDto), HttpStatus.CREATED);
+       try {
+           return new ResponseEntity<>(taskService.saveTask(taskDto), HttpStatus.CREATED);
+       }
+       catch (APIException e){
+           return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
+       }
+       catch (UserNotFound e){
+           String error = "User Details Not Found";
+           return new ResponseEntity<>(error,HttpStatus.BAD_REQUEST);
+       }
+       catch (Exception e){
+           return new ResponseEntity<>("Something Went Wrong",HttpStatus.BAD_REQUEST);
+       }
     }
     //GET all tasks
     @GetMapping("/tasks")
-    public ResponseEntity<List<TaskDto>> getAllTasks(
+    public ResponseEntity<Object> getAllTasks(
     ){
-        return new ResponseEntity<>(taskService.getAllTasks(), HttpStatus.OK);
+        try {
+            return new ResponseEntity<>(taskService.getAllTasks(), HttpStatus.OK);
+        }
+        catch (APIException e){
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
+        }
+        catch (UserNotFound e){
+            String error = "User Details Not Found";
+            return new ResponseEntity<>(error,HttpStatus.BAD_REQUEST);
+        }
+        catch (Exception e){
+            return new ResponseEntity<>("Something Went Wrong",HttpStatus.BAD_REQUEST);
+        }
     }
     @GetMapping("/admin/tasks")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<TaskDto>> getAllUserTasks(
+    public ResponseEntity<Object> getAllUserTasks(
     ){
-        return new ResponseEntity<>(taskService.getAllUsersTasks(), HttpStatus.OK);
+        try {
+            return new ResponseEntity<>(taskService.getAllUsersTasks(), HttpStatus.OK);
+        }
+        catch (APIException e){
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
+        }
     }
     //GET individual task
     @GetMapping("/tasks/{taskid}")
-    public ResponseEntity<TaskDto> getTask(
+    public ResponseEntity<Object> getTask(
         @PathVariable(name = "taskid") long taskid
     ){
-        return new ResponseEntity<>(taskService.getTask(taskid),HttpStatus.OK);
+
+
+        try {
+            return new ResponseEntity<>(taskService.getTask(taskid),HttpStatus.OK);
+        }
+        catch (UserNotFound e){
+            String error = "User Details Not Found";
+            return new ResponseEntity<>(error,HttpStatus.BAD_REQUEST);
+        }
+        catch (TaskNotFound e){
+            String error = "Task Details Not Found";
+            return new ResponseEntity<>(error,HttpStatus.BAD_REQUEST);
+        }
+        catch (APIException e){
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
+        }
+        catch (Exception e){
+            return new ResponseEntity<>("Something Went Wrong",HttpStatus.BAD_REQUEST);
+        }
     }
 
     //DELETE individual task
     @DeleteMapping("/tasks/{taskid}")
-    public ResponseEntity<DeleteTaskDto> deleteTask(
+    public ResponseEntity<Object> deleteTask(
             @PathVariable(name = "taskid") long taskid
     ){
         DeleteTaskDto deleteTaskDto = new DeleteTaskDto();
         try {
             TaskDto deletedTask = taskService.deleteTask(taskid);
             deleteTaskDto.setMessage("Deleted Successfully");
+            return new ResponseEntity<>(deleteTaskDto,HttpStatus.OK);
+        }
+        catch (UserNotFound e){
+            String error = "User Details Not Found";
+            return new ResponseEntity<>(error,HttpStatus.BAD_REQUEST);
+        }
+        catch (TaskNotFound e){
+            String error = "Task Details Not Found";
+            return new ResponseEntity<>(error,HttpStatus.BAD_REQUEST);
+        }
+        catch (APIException e){
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
         }
         catch (Exception e){
-            deleteTaskDto.setMessage("Something Went wrong ...!");
+            return new ResponseEntity<>("Something Went Wrong",HttpStatus.BAD_REQUEST);
         }
 
-        return new ResponseEntity<>(deleteTaskDto,HttpStatus.OK);
+
+
     }
     @PutMapping("/tasks/{taskid}")
-    public ResponseEntity<TaskDto> updateTask(
+    public ResponseEntity<Object> updateTask(
             @PathVariable(name = "taskid") long taskid,
             @RequestBody UpdateTaskDto updateTaskDto
     ){
-        return new ResponseEntity<>(taskService.updateTask(taskid,updateTaskDto),HttpStatus.OK);
+        try{
+            return new ResponseEntity<>(taskService.updateTask(taskid,updateTaskDto),HttpStatus.OK);
+        }
+        catch (UserNotFound e){
+            String error = "User Details Not Found";
+            return new ResponseEntity<>(error,HttpStatus.BAD_REQUEST);
+        }
+        catch (TaskNotFound e){
+            String error = "Task Details Not Found";
+            return new ResponseEntity<>(error,HttpStatus.BAD_REQUEST);
+        }
+        catch (APIException e){
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
+        }
+        catch (Exception e){
+            return new ResponseEntity<>("Something Went Wrong",HttpStatus.BAD_REQUEST);
+        }
     }
 }
